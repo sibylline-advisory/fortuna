@@ -32,6 +32,7 @@ def on_startup():
     if settings.test_mode:
         log.info("Running in test mode")
 
+
 @app.get("/", name="Base", include_in_schema=False)
 async def root():
     return {"message": "Hello World"}

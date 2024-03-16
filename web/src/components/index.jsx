@@ -3,73 +3,77 @@
  * @see https://v0.dev/t/8XCAUq2ZoxN
  */
 import Image from "next/image";
-import {useState} from "react";
+import {useRef, useState} from "react";
 import {Input} from "@/components/ui/input";
 import {sendTask} from "@/lib/task";
+import {useWalletClient} from "wagmi";
+import TestButtons from "@/components/TestButtons";
+import WalletModalWrapper from "@/components/WalletModalWrapper";
 
 export function Index() {
-  const [message, setMessage] = useState("");
+	const [message, setMessage] = useState("");
+	const {data} = useWalletClient();
+	const signer = useRef({})
+	const safeAccount = useRef({})
+	const smartAccountClient = useRef({})
 
-  const submit = async () => {
-    console.log(message);
-    await sendTask(message);
-  }
+	const submit = async () => {
+		console.log(message);
+		await sendTask(message);
+	}
 
-  const formHandler = (e) => {
-    e.preventDefault();
-    submit().then(() => {console.log("handled")});
-  }
+	const formHandler = (e) => {
+		e.preventDefault();
+		submit().then(() => {
+			console.log("handled")
+		});
+	}
 
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
-      <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-4">
-        <div className="flex items-center">
-          <Image
-            width={10}
-            height={10}
-            alt="Logo"
-            className="w-10 h-10"
-            src="/placeholder.svg"
-          />
-          <div className="ml-2 text-2xl font-semibold text-gray-800 dark:text-gray-200">
-            Fortuna
-          </div>
-        </div>
-        <div className="flex items-center">
-          <Image
-            width={40}
-            height={40}
-            alt="User Profile"
-            className="w-8 h-8 rounded-full"
-            src="/placeholder.svg"
-          />
-        </div>
-      </div>
-      <div className="flex flex-col items-center justify-center gap-4">
-        <div className="text-4xl font-bold text-gray-700 dark:text-gray-300">
-          Welcome to Fortuna
-        </div>
-        <div className="text-lg text-gray-600 dark:text-gray-400">
-          Your on-chain money manager
-        </div>
-        <div className="flex items-center w-full max-w-md p-2 bg-white dark:bg-gray-800 rounded-full shadow-md">
-          <Image
-            width={32}
-            height={32}
-            alt="Search Icon"
-            className="w-6 h-6 ml-2 text-gray-500"
-            src="/placeholder.svg"
-          />
-          <form onSubmit={formHandler}>
-            <Input
-              className="w-full p-2 ml-4 text-lg text-gray-700 dark:text-gray-300 bg-transparent outline-none"
-              placeholder="What do you want to do today?"
-              type="text"
-              onChange={(e) => setMessage(e.target.value)}
-            />
-          </form>
-        </div>
-      </div>
-    </div>
-  );
+	return (
+		<div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
+			<div className="absolute top-0 left-0 right-0 flex items-center justify-between p-4">
+				<div className="flex items-center">
+					<Image
+						width={10}
+						height={10}
+						alt="Logo"
+						className="w-10 h-10"
+						src="/placeholder.svg"
+					/>
+					<div className="ml-2 text-2xl font-semibold text-gray-800 dark:text-gray-200">
+						Fortuna
+					</div>
+				</div>
+				<div className="flex items-center">
+					<WalletModalWrapper/>
+				</div>
+			</div>
+			<div className="flex flex-col items-center justify-center gap-4">
+				<div className="text-4xl font-bold text-gray-700 dark:text-gray-300">
+					Welcome to Fortuna
+				</div>
+				<div className="text-lg text-gray-600 dark:text-gray-400">
+					Your on-chain money manager
+				</div>
+				<div className="flex items-center w-full max-w-md p-2 bg-white dark:bg-gray-800 rounded-full shadow-md">
+					<Image
+						width={32}
+						height={32}
+						alt="Search Icon"
+						className="w-6 h-6 ml-2 text-gray-500"
+						src="/placeholder.svg"
+					/>
+					<form onSubmit={formHandler}>
+						<Input
+							className="w-full p-2 ml-4 text-lg text-gray-700 dark:text-gray-300 bg-transparent outline-none"
+							placeholder="What do you want to do today?"
+							type="text"
+							onChange={(e) => setMessage(e.target.value)}
+						/>
+					</form>
+				</div>
+				<TestButtons data={data} signer={signer} safeAccount={safeAccount} smartAccountClient={smartAccountClient}/>
+			</div>
+		</div>
+	);
 }

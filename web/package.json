@@ -9,6 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@radix-ui/react-icons": "^1.3.0",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.0",
+    "lucide-react": "^0.358.0",
+    "tailwind-merge": "^2.2.1",
+    "tailwindcss-animate": "^1.0.7",
     "@dynamic-labs/ethereum": "*",
     "@dynamic-labs/sdk-react-core": "*",
     "@dynamic-labs/wagmi-connector": "*",

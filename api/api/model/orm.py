@@ -1,16 +1,21 @@
+import time
 from typing import Optional, List
 import uuid
 
+from sqlalchemy import TEXT, Column, BigInteger
 from sqlalchemy.orm import RelationshipProperty
 from sqlmodel import SQLModel, Field, Relationship
+
+from .enum import *
 
 
 class User(SQLModel, table=True):
     uid: str = Field(primary_key=True)
+    created_at: int = Field(sa_column=Column(BigInteger()), default_factory=lambda: time.time() * 1000)
     tasks: Optional[List["Task"]] = Relationship(
         back_populates="user",
         sa_relationship=RelationshipProperty(
-            "Request",
+            "Task",
             primaryjoin="foreign(User.uid) == Task.user_id",
             uselist=True,
             viewonly=False
@@ -20,7 +25,9 @@ class User(SQLModel, table=True):
 
 class Task(SQLModel, table=True):
     tid: str = Field(primary_key=True, default_factory=lambda: f"tid-{uuid.uuid4().hex}")
-    type: str
+    created_at: int = Field(sa_column=Column(BigInteger()), default_factory=lambda: time.time() * 1000)
+    type: TaskType
+    text: str
     user_id: str = Field(index=True)
     user: User = Relationship(
         back_populates="tasks",

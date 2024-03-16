@@ -16,7 +16,7 @@ sqlalchemy>=1.4.35
 
 # AI stuff
 tiktoken
-llama-index==0.9.5
+llama-index==0.10.20
 openai~=1.11.1
 openai[embeddings]
 aiohttp[speedups]

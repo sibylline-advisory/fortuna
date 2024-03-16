@@ -32,9 +32,7 @@ def send_currency(amount: float, currency: str, recipient: str) -> dict:
             "contract": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
         }
         log.info(f"Returning {return_dict}")
-
         return return_dict
     else:
         pass
-
     return {}

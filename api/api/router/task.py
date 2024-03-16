@@ -31,14 +31,24 @@ async def create_task(payload: CreateTaskPayload,
 @router.post("/resolver")
 async def resolve_task(payload: ResolverPayload,
                        db: DBSession = Depends(get_db_session)):
-    log.info("Resolving task with payload: %s", payload.dict())
+    log.info(f"Resolving task with payload: {payload.dict()}")
     pending_task: Task = safe_db_read(select(Task).where(Task.tid == payload.tid), db)
-    log.info("Got pending task: %s", pending_task.dict())
+    log.info(f"Got pending task: {pending_task.dict()}")
     resolver_agent = get_chat_agent()
-    response = resolver_agent.chat(pending_task.text)
+    response = resolver_agent.chat(f"""
+    We have received the following financial task (tid: {pending_task.tid}) from our client for you to resolve:
+    
+    {pending_task.text}
+    
+    Please resolve this task using the tools provided and update the task with the resolution in-line with our
+    standards and expectations. Accuracy is essential due to the sensitivity and nature of our regulated
+    financial offerings.
+    
+    """)
     log.info(f"Got response from resolver agent: {response}")
-
-    return {}
+    db.refresh(pending_task)
+    log.info(pending_task)
+    return pending_task.dict()
 
 
 @router.get("/{tid}")

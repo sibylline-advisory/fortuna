@@ -35,7 +35,7 @@ export function Index() {
 		};
 		let intervalId;
 		if (hasResolution && !resolutionDetails) {
-			console.log(`Resolution: ${hasResolution} - polling`);
+			console.log(`Resolution: ${JSON.stringify(hasResolution)} - polling`);
 			intervalId = setInterval(pollApi, 1000);
 		}
 

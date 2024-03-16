@@ -3,8 +3,23 @@
  * @see https://v0.dev/t/8XCAUq2ZoxN
  */
 import Image from "next/image";
+import {useState} from "react";
+import {Input} from "@/components/ui/input";
+import {sendTask} from "@/lib/task";
 
 export function Index() {
+  const [message, setMessage] = useState("");
+
+  const submit = async () => {
+    console.log(message);
+    await sendTask(message);
+  }
+
+  const formHandler = (e) => {
+    e.preventDefault();
+    submit().then(() => {console.log("handled")});
+  }
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
       <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-4">
@@ -45,11 +60,14 @@ export function Index() {
             className="w-6 h-6 ml-2 text-gray-500"
             src="/placeholder.svg"
           />
-          <input
-            className="w-full p-2 ml-4 text-lg text-gray-700 dark:text-gray-300 bg-transparent outline-none"
-            placeholder="What do you want to do today?"
-            type="text"
-          />
+          <form onSubmit={formHandler}>
+            <Input
+              className="w-full p-2 ml-4 text-lg text-gray-700 dark:text-gray-300 bg-transparent outline-none"
+              placeholder="What do you want to do today?"
+              type="text"
+              onChange={(e) => setMessage(e.target.value)}
+            />
+          </form>
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import logging
-from llama_index.agent import OpenAIAgent
+
+from llama_index.agent.openai import OpenAIAgent
 
 from .common import service_context
 

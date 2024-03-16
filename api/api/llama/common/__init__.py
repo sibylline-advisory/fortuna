@@ -1,7 +1,9 @@
-from llama_index import ServiceContext, OpenAIEmbedding
 import openai
-from llama_index.llms import OpenAI
+from llama_index.core.service_context import ServiceContext
+from llama_index.embeddings.openai import OpenAIEmbedding
 import logging
+
+from llama_index.llms.openai import OpenAI
 
 from ...settings import secure_settings
 

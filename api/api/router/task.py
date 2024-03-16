@@ -5,8 +5,9 @@ from sqlmodel import select
 
 from ..dependency import get_user
 from ..dependency.db import get_db_session, DBSession, safe_db_read, safe_db_write
+from ..llama.task import get_chat_agent
 from ..model.orm import Task, User
-from ..model.request import CreateTaskPayload
+from ..model.request import CreateTaskPayload, ResolverPayload
 
 log = logging.getLogger(__name__)
 router = APIRouter(
@@ -25,3 +26,14 @@ async def create_task(payload: CreateTaskPayload,
     )
     safe_db_write([task], db)
     return {"tid": task.tid}
+
+
+
+@router.post("/resolver")
+async def resolve_task(payload: ResolverPayload,
+                       db: DBSession = Depends(get_db_session)):
+    pending_task: Task = safe_db_read(select(Task).where(Task.tid == payload.tid), db)
+    resolver_agent = get_chat_agent()
+    resolver_agent.chat(pending_task.text)
+
+    return {}

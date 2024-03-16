@@ -24,7 +24,15 @@ export function Index() {
 
 	const submit = async () => {
 		console.log(message);
-		await sendTask(message, getAuthToken());
+		const response = await sendTask(message, getAuthToken());
+		console.log(response);
+		if (response) {
+			// 	TODO poll for the final response for this task
+			// 	when task complete, get the final response calldata
+			// 	sign calldata with signer
+			//  send the signed calldata to pimlico
+			//  mark the task as complete (if there was calldata)
+		}
 	}
 
 	const formHandler = (e) => {
@@ -35,6 +43,7 @@ export function Index() {
 			console.log("handled")
 		});
 		setMessage("");
+		setLoading(false);
 	}
 
 	return (

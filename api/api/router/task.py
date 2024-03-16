@@ -28,11 +28,12 @@ async def create_task(payload: CreateTaskPayload,
     return {"tid": task.tid}
 
 
-
 @router.post("/resolver")
 async def resolve_task(payload: ResolverPayload,
                        db: DBSession = Depends(get_db_session)):
+    log.info("Resolving task with payload: %s", payload.dict())
     pending_task: Task = safe_db_read(select(Task).where(Task.tid == payload.tid), db)
+    log.info("Got pending task: %s", pending_task.dict())
     resolver_agent = get_chat_agent()
     resolver_agent.chat(pending_task.text)
 

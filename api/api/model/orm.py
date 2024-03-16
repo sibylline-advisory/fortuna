@@ -3,6 +3,7 @@ from typing import Optional, List
 import uuid
 
 from sqlalchemy import TEXT, Column, BigInteger
+from sqlalchemy.dialects.mysql import LONGTEXT
 from sqlalchemy.orm import RelationshipProperty
 from sqlmodel import SQLModel, Field, Relationship
 
@@ -38,3 +39,5 @@ class Task(SQLModel, table=True):
             viewonly=True
         )
     )
+    status: Optional[str]
+    call_data: Optional[str] = Field(sa_column=Column(LONGTEXT))

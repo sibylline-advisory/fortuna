@@ -35,6 +35,7 @@ async def resolve_task(payload: ResolverPayload,
     pending_task: Task = safe_db_read(select(Task).where(Task.tid == payload.tid), db)
     log.info("Got pending task: %s", pending_task.dict())
     resolver_agent = get_chat_agent()
-    resolver_agent.chat(pending_task.text)
+    response = resolver_agent.chat(pending_task.text)
+    log.info(f"Got response from resolver agent: {response}")
 
     return {}

@@ -33,7 +33,7 @@ def get_chat_agent(history=None, callback_manager=None) -> OpenAIAgent:
                       "them using the tools provided, ensuring you mark the task with the returned value of the tools "
                       "after completion",
         llm=service_context.llm,
-        # tools=[transfer_currency_tool, update_task_with_resolution],
+        tools=[transfer_currency_tool, update_task_with_resolution],
         callback_manager=callback_manager,
         verbose=True,
         chat_history=history

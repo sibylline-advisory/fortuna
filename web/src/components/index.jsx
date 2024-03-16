@@ -26,8 +26,9 @@ export function Index() {
 
 	useEffect(() => {
 		const pollApi = async () => {
-			const response = await getResolution();
+			const response = await getResolution(hasResolution);
 			if (response) {
+				console.log("Got resolution response", response)
 				setPollData(response);
 				const r = await handleAgentResolution(response, signer, safeAccount, smartAccountClient);
 				const synAck = await ackAgentResolution(response);

@@ -10,3 +10,7 @@ class CreateTaskPayload(BaseModel):
 
 class ResolverPayload(BaseModel):
     tid: str
+
+
+class AckTask(BaseModel):
+    op_hash: str

@@ -4,7 +4,7 @@ import {parseEther, zeroAddress} from "viem";
 export default function TestButtons({data, signer, safeAccount, smartAccountClient}) {
 
 	const demoSendEth = {
-		to: "0x8f56A5cF7c56a01118d2C5992146473D32b5f612", // harper safe
+		to: "0x9BF4E958BE655297df383f67A4ff8435b032F1B8", // dan safe
 		value: parseEther("0.001")
 	}
 

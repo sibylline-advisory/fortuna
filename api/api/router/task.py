@@ -7,7 +7,7 @@ from ..dependency import get_user
 from ..dependency.db import get_db_session, DBSession, safe_db_read, safe_db_write
 from ..llama.task import get_chat_agent
 from ..model.orm import Task, User
-from ..model.request import CreateTaskPayload, ResolverPayload
+from ..model.request import CreateTaskPayload, ResolverPayload, AckTask
 
 log = logging.getLogger(__name__)
 router = APIRouter(
@@ -39,3 +39,21 @@ async def resolve_task(payload: ResolverPayload,
     log.info(f"Got response from resolver agent: {response}")
 
     return {}
+
+
+@router.get("/{tid}")
+async def get_task(tid: str,
+                   db: DBSession = Depends(get_db_session)):
+    task = safe_db_read(select(Task).where(Task.tid == tid), db)
+    return task
+
+
+@router.patch("/{tid}")
+async def update_task(tid: str,
+                      payload: AckTask,
+                      db: DBSession = Depends(get_db_session)):
+    task = safe_db_read(select(Task).where(Task.tid == tid), db)
+    for key, value in payload.dict().items():
+        setattr(task, key, value)
+    safe_db_write([task], db)
+    return task

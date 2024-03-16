@@ -3,12 +3,13 @@
  * @see https://v0.dev/t/8XCAUq2ZoxN
  */
 import Image from "next/image";
-import {useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {Input} from "@/components/ui/input";
 import {sendTask} from "@/lib/task";
 import {useWalletClient} from "wagmi";
 import TestButtons from "@/components/TestButtons";
 import WalletModalWrapper from "@/components/WalletModalWrapper";
+import {getAuthToken} from "@dynamic-labs/sdk-react-core";
 
 export function Index() {
 	const [message, setMessage] = useState("");
@@ -17,16 +18,28 @@ export function Index() {
 	const safeAccount = useRef({})
 	const smartAccountClient = useRef({})
 
+	const authJwt = useRef("")
+
+	const [loading, setLoading] = useState(false);
+
+	useEffect(() => {
+		authJwt.current = getAuthToken()
+	}, [data]);
+
+
 	const submit = async () => {
 		console.log(message);
-		await sendTask(message);
+		await sendTask(message, dynamicJwtToken.current);
 	}
 
 	const formHandler = (e) => {
 		e.preventDefault();
+		if (message.trim() === "") return;
+		setLoading(true);
 		submit().then(() => {
 			console.log("handled")
 		});
+		setMessage("");
 	}
 
 	return (
@@ -64,12 +77,20 @@ export function Index() {
 						src="/placeholder.svg"
 					/>
 					<form onSubmit={formHandler}>
-						<Input
+						{!loading ? <Input
 							className="w-full p-2 ml-4 text-lg text-gray-700 dark:text-gray-300 bg-transparent outline-none"
-							placeholder="What do you want to do today?"
+							placeholder="Lets get started"
 							type="text"
+							value={message}
 							onChange={(e) => setMessage(e.target.value)}
+						/> :
+						<Input
+							disbled
+							className="w-full p-2 ml-4 text-lg text-gray-700 dark:text-gray-300 bg-transparent outline-none"
+							type="text"
+							value={message}
 						/>
+						}
 					</form>
 				</div>
 				<TestButtons data={data} signer={signer} safeAccount={safeAccount} smartAccountClient={smartAccountClient}/>

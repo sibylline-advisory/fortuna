@@ -1,12 +1,13 @@
 import { FORTUNA_API_BASE } from "@/lib/constants";
 
-export async function sendTask(message) {
+export async function sendTask(message, jwt) {
   const url = new URL(`${FORTUNA_API_BASE}/task/`);
   try {
     const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "x-fortuna-jwt": jwt
       },
       body: JSON.stringify({
         type: "spot",

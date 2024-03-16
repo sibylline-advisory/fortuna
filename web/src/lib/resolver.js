@@ -1,9 +1,12 @@
 import {encodeFunctionData} from 'viem'
 import {pimlicoBundlerClient} from "@/lib/pimlico";
 import {ENTRYPOINT_ADDRESS_V06} from "permissionless";
+import {getTask, patchTask} from "@/lib/task";
 
-export const getResolution = async () => {
-	// TODO impl
+export const getResolution = async (tid) => {
+	const response = await getTask(tid)
+	console.log("response", response)
+	// TODO finish impl.
 	// USDC resolution response.
 	return {
 		abi: [{
@@ -64,6 +67,8 @@ export const handleAgentResolution = async (data, signer, safeAccount, smartAcco
 }
 
 
-export const ackAgentResolution = async (data) => {
+export const ackAgentResolution = async (tid, data, jwt) => {
+	const apiResponse = await patchTask(tid, data, jwt)
+	console.log("apiResponse", apiResponse)
 	return {}
 }

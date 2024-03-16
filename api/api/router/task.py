@@ -44,6 +44,9 @@ async def resolve_task(payload: ResolverPayload,
     standards and expectations. Accuracy is essential due to the sensitivity and nature of our regulated
     financial offerings.
     
+    When using each of the tools, ensure you call the tools correctly; directly with the required arguments and
+    not wrapped in any other structure such as input.
+    
     """)
     log.info(f"Got response from resolver agent: {response}")
     db.refresh(pending_task)

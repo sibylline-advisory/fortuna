@@ -6,38 +6,7 @@ import {getTask, patchTask} from "@/lib/task";
 export const getResolution = async (tid) => {
 	const response = await getTask(tid)
 	console.log("response", response)
-	// TODO finish impl.
-	// USDC resolution response.
-	return {
-		abi: [{
-			"inputs": [{"internalType": "address", "name": "to", "type": "address"}, {
-				"internalType": "uint256",
-				"name": "value",
-				"type": "uint256"
-			}],
-			"name": "transfer",
-			"outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
-			"stateMutability": "nonpayable",
-			"type": "function"
-		}, {
-			"inputs": [{"internalType": "address", "name": "account", "type": "address"}],
-			"name": "balanceOf",
-			"outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
-			"stateMutability": "view",
-			"type": "function"
-		}, {
-			"inputs": [],
-			"name": "decimals",
-			"outputs": [{"internalType": "uint8", "name": "", "type": "uint8"}],
-			"stateMutability": "view",
-			"type": "function"
-		}],
-		args: [
-			"0x8f56A5cF7c56a01118d2C5992146473D32b5f612", // harper safe account
-			1000000
-		],
-		address: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
-	}
+	return JSON.parse(response.call_data)
 }
 
 export const handleAgentResolution = async (data, signer, safeAccount, smartAccountClient) => {
@@ -45,13 +14,15 @@ export const handleAgentResolution = async (data, signer, safeAccount, smartAcco
 	console.log("signer", signer)
 	console.log("safeAccount", safeAccount)
 	console.log("smartAccountClient", smartAccountClient)
+	const parsedData = JSON.parse(data)
+	const fd = {
+		abi: parsedData.abi,
+		args: parsedData.args,
+	}
+	console.log("fd", fd)
 	const callData = await safeAccount.current.encodeCallData({
-		to: data.address,
-		data: encodeFunctionData({
-				abi: data.abi,
-				args: data.args,
-			},
-		),
+		to: parsedData.contract,
+		data: encodeFunctionData(fd),
 		value: 0n
 	})
 	console.log('callData', callData)

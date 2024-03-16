@@ -1,5 +1,5 @@
-import {encodeFunctionData} from 'viem'
-import {pimlicoBundlerClient} from "@/lib/pimlico";
+import {encodeFunctionData, getContract} from 'viem'
+import {pimlicoBundlerClient, publicClient} from "@/lib/pimlico";
 import {ENTRYPOINT_ADDRESS_V06} from "permissionless";
 import {getTask, patchTask} from "@/lib/task";
 
@@ -32,12 +32,16 @@ export const getResolution = async (tid) => {
 			"stateMutability": "view",
 			"type": "function"
 		}],
-		args: ["0x8f56A5cF7c56a01118d2C5992146473D32b5f612", "1000000"],
+		args: ["0x8f56A5cF7c56a01118d2C5992146473D32b5f612", 1000000],
 		address: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
 	}
 }
 
 export const handleAgentResolution = async (data, signer, safeAccount, smartAccountClient) => {
+	console.log("data", data)
+	console.log("signer", signer)
+	console.log("safeAccount", safeAccount)
+	console.log("smartAccountClient", smartAccountClient)
 	const callData = await safeAccount.current.encodeCallData({
 		to: data.address,
 		data: encodeFunctionData({
@@ -50,7 +54,7 @@ export const handleAgentResolution = async (data, signer, safeAccount, smartAcco
 	console.log('callData', callData)
 	const gasPrices = await pimlicoBundlerClient.getUserOperationGasPrice()
 
-	const userOperation = await smartAccountClient.prepareUserOperationRequest({
+	const userOperation = await smartAccountClient.current.prepareUserOperationRequest({
 		userOperation: {
 			callData, // callData is the only required field in the partial user operation
 			maxFeePerGas: gasPrices.fast.maxFeePerGas,
@@ -58,12 +62,12 @@ export const handleAgentResolution = async (data, signer, safeAccount, smartAcco
 		}
 	})
 	console.log('userOperation', userOperation)
-	const userOpHash = await pimlicoBundlerClient.sendUserOperation({
+	const userOpHash = await smartAccountClient.current.sendUserOperation({
 		userOperation,
 		entryPoint: ENTRYPOINT_ADDRESS_V06
 	})
 	console.log('userOpHash', userOpHash)
-	return {}
+	return {} // the hash?
 }
 
 

@@ -11,6 +11,7 @@ import TestButtons from "@/components/TestButtons";
 import WalletModalWrapper from "@/components/WalletModalWrapper";
 import {getAuthToken} from "@dynamic-labs/sdk-react-core";
 import {ackAgentResolution, getResolution, handleAgentResolution} from "@/lib/resolver";
+import {doClientSetup} from "@/lib/pimlico";
 
 export function Index() {
 	const [message, setMessage] = useState("");
@@ -26,10 +27,11 @@ export function Index() {
 
 	useEffect(() => {
 		const pollApi = async () => {
-			const response = await getResolution(hasResolution);
+			const response = await getResolution(hasResolution.tid);
 			if (response) {
 				console.log("Got resolution response", response)
 				setPollData(response);
+				await doClientSetup(data, signer, safeAccount, smartAccountClient);
 				const r = await handleAgentResolution(response, signer, safeAccount, smartAccountClient);
 				const synAck = await ackAgentResolution(response);
 				if (synAck) {

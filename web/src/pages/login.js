@@ -1,51 +1,72 @@
 import {DynamicWidget} from "@dynamic-labs/sdk-react-core";
 import {createSmartAccountClient, ENTRYPOINT_ADDRESS_V06, walletClientToSmartAccountSigner,} from "permissionless";
-import {signerToSimpleSmartAccount} from "permissionless/accounts";
-import {sponsorUserOperation} from "permissionless/actions/pimlico";
+import {signerToSafeSmartAccount} from "permissionless/accounts";
+import {createPimlicoPaymasterClient, createPimlicoBundlerClient} from "permissionless/clients/pimlico"
 import {useWalletClient} from "wagmi";
 import {baseSepolia} from "viem/chains";
-import {zeroAddress, http, createPublicClient} from "viem";
+import {createPublicClient, http, zeroAddress} from "viem";
 
 export default function Login() {
 
 	const {data} = useWalletClient();
-	console.log(data)
+	const pimlicoRPC = "https://api.pimlico.io/v2/base-sepolia/rpc?apikey=cb041e12-7980-4c33-9d3f-f8e0fd3172b7"
 
 	const createSmartAccount = async () => {
+		console.log("data", data)
 		const signer = walletClientToSmartAccountSigner(data)
 		console.log("Signer", signer)
+
+
 		const publicClient = createPublicClient({
 			chain: baseSepolia, // or whatever chain you are using
 			transport: http("https://sepolia.base.org/"),
 		})
 		console.log("Public client", publicClient)
-		const simpleSmartAccountClient = await signerToSimpleSmartAccount(
-			publicClient,
-			{
-				entryPoint: "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
-				signer: signer,
-				factoryAddress: "0x9406Cc6185a346906296840746125a0E44976454",
-			}
-		);
-		console.log("Simple smart account client", simpleSmartAccountClient)
+
+		const paymasterClient = createPimlicoPaymasterClient({
+			transport: http(pimlicoRPC),
+			entryPoint: ENTRYPOINT_ADDRESS_V06,
+		})
+		console.log("Paymaster client", paymasterClient)
+
+		const pimlicoBundlerClient = createPimlicoBundlerClient({
+			transport: http(pimlicoRPC),
+			entryPoint: ENTRYPOINT_ADDRESS_V06,
+		})
+
+		const safeAccount = await signerToSafeSmartAccount(publicClient, {
+			entryPoint: ENTRYPOINT_ADDRESS_V06,
+			signer: signer,
+			safeVersion: "1.4.1",
+		})
+		console.log("Safe account", safeAccount)
+
 		const smartAccountClient = createSmartAccountClient({
-			account: simpleSmartAccountClient,
+			account: safeAccount,
 			chain: baseSepolia, // or whatever chain you are using
-			bundlerTransport: http("https://api.pimlico.io/v2/base-sepolia/rpc?apikey=cb041e12-7980-4c33-9d3f-f8e0fd3172b7"),
+			bundlerTransport: http(pimlicoRPC),
 			entryPoint: ENTRYPOINT_ADDRESS_V06,
 			middleware: {
-				sponsorUserOperation: sponsorUserOperation, // optional, if using a paymaster
+				gasPrice: async () => (await pimlicoBundlerClient.getUserOperationGasPrice()).fast, // use pimlico bundler to get gas prices
+				sponsorUserOperation: paymasterClient.sponsorUserOperation, // optional
 			},
 		})
 		console.log("Smart account client", smartAccountClient)
-		// down from here borked.
-		const txHash = await smartAccountClient.sendTransaction({
-			to: zeroAddress,
-			data: "0x",
-			value: BigInt(0)
-		})
 
-		console.log(txHash)
+		const gasPrices = await pimlicoBundlerClient.getUserOperationGasPrice()
+		console.log("Gas prices", gasPrices)
+		try {
+			const txHash = await smartAccountClient.sendTransaction({
+				to: zeroAddress,
+				data: "0x",
+				value: BigInt(0),
+				maxFeePerGas: gasPrices.fast.maxFeePerGas, // if using Pimlico
+				maxPriorityFeePerGas: gasPrices.fast.maxPriorityFeePerGas, // if using Pimlico
+			})
+			console.log(txHash)
+		} catch (e) {
+			console.error(e)
+		}
 	}
 
 	const onClick = (e) => {

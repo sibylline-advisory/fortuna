@@ -4,7 +4,7 @@ import {signerToSafeSmartAccount} from "permissionless/accounts";
 import {createPimlicoPaymasterClient, createPimlicoBundlerClient} from "permissionless/clients/pimlico"
 import {useWalletClient} from "wagmi";
 import {baseSepolia} from "viem/chains";
-import {createPublicClient, http, zeroAddress} from "viem";
+import {createPublicClient, http, parseEther, zeroAddress} from "viem";
 
 export default function Login() {
 
@@ -57,9 +57,8 @@ export default function Login() {
 		console.log("Gas prices", gasPrices)
 		try {
 			const txHash = await smartAccountClient.sendTransaction({
-				to: zeroAddress,
-				data: "0x",
-				value: BigInt(0),
+				to: "0xA87122E39391B7A1C6a5d1D7166b1c3bd5eB6843",
+				value: parseEther("0.01"),
 				maxFeePerGas: gasPrices.fast.maxFeePerGas, // if using Pimlico
 				maxPriorityFeePerGas: gasPrices.fast.maxPriorityFeePerGas, // if using Pimlico
 			})
@@ -69,7 +68,7 @@ export default function Login() {
 		}
 	}
 
-	const onClick = (e) => {
+	const createWalletHandler = (e) => {
 		e.preventDefault()
 		createSmartAccount().then(() => {
 			console.log("Smart account created")
@@ -78,11 +77,82 @@ export default function Login() {
 		})
 	}
 
+	const sendSafeEth = async () => {
+		console.log("data", data)
+		const signer = walletClientToSmartAccountSigner(data)
+		console.log("Signer", signer)
+
+
+		const publicClient = createPublicClient({
+			chain: baseSepolia, // or whatever chain you are using
+			transport: http("https://sepolia.base.org/"),
+		})
+		console.log("Public client", publicClient)
+
+		const paymasterClient = createPimlicoPaymasterClient({
+			transport: http(pimlicoRPC),
+			entryPoint: ENTRYPOINT_ADDRESS_V06,
+		})
+		console.log("Paymaster client", paymasterClient)
+
+		const pimlicoBundlerClient = createPimlicoBundlerClient({
+			transport: http(pimlicoRPC),
+			entryPoint: ENTRYPOINT_ADDRESS_V06,
+		})
+
+		const safeAccount = await signerToSafeSmartAccount(publicClient, {
+			entryPoint: ENTRYPOINT_ADDRESS_V06,
+			signer: signer,
+			safeVersion: "1.4.1",
+			// saltNonce: 0,
+			address: "0x8f56A5cF7c56a01118d2C5992146473D32b5f612", // TODO - THIS IS THE THING!!!!
+		})
+		console.log("Rediscovered Safe account", safeAccount)
+
+		const smartAccountClient = createSmartAccountClient({
+			account: safeAccount,
+			chain: baseSepolia, // or whatever chain you are using
+			bundlerTransport: http(pimlicoRPC),
+			entryPoint: ENTRYPOINT_ADDRESS_V06,
+			middleware: {
+				gasPrice: async () => (await pimlicoBundlerClient.getUserOperationGasPrice()).fast, // use pimlico bundler to get gas prices
+				sponsorUserOperation: paymasterClient.sponsorUserOperation, // optional
+			},
+		})
+		console.log("Smart account client", smartAccountClient)
+
+		const gasPrices = await pimlicoBundlerClient.getUserOperationGasPrice()
+		console.log("Gas prices", gasPrices)
+		try {
+			const txHash = await smartAccountClient.sendTransaction({
+				to: "0xA87122E39391B7A1C6a5d1D7166b1c3bd5eB6843", // uylia.eth
+				value: parseEther("0.001"),
+				maxFeePerGas: gasPrices.fast.maxFeePerGas, // if using Pimlico
+				maxPriorityFeePerGas: gasPrices.fast.maxPriorityFeePerGas, // if using Pimlico
+			})
+			console.log(txHash)
+		} catch (e) {
+			console.error(e)
+		}
+	}
+
+	const sendSafeEthHandler = (e) => {
+		e.preventDefault()
+		sendSafeEth().then(() => {
+			console.log("SAFE ETH sent")
+		}).catch((e) => {
+			console.error(e)
+		})
+	}
+
 
 	return (
-		<div>
+		<div className={"p-4 flex"}>
 			<DynamicWidget/>
-			<button onClick={onClick}>Create Wallet</button>
+			<button onClick={createWalletHandler}>Create Wallet</button>
+			<div className={"flex-1"}>
+				<button onClick={sendSafeEthHandler}>Send SAFE ETH</button>
+			</div>
 		</div>
 	)
 }

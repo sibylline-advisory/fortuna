@@ -12,8 +12,9 @@ log = logging.getLogger(__name__)
 transfer_currency_tool = FunctionTool(
     fn=send_currency,
     metadata=ToolMetadata(
-        name="Transfer Currency",
-        description="Transfers currency to someone or something else.",
+        name="transfer_currency_tool",
+        description="Transfers currency to someone or something else, the amount passed to the function must be a "
+                    "float, the currency passed to the function must be in ISO 4217 format.",
     )
 )
 
@@ -21,8 +22,8 @@ transfer_currency_tool = FunctionTool(
 update_task_with_resolution = FunctionTool(
     fn=update_task_with_resolution,
     metadata=ToolMetadata(
-        name="Update Task With Resolution",
-        description="Updates a task with the resolution of the task.",
+        name="update_task_with_resolution_tool",
+        description="Updates a task with the resolution of said task.",
     )
 )
 
@@ -30,8 +31,8 @@ update_task_with_resolution = FunctionTool(
 def get_chat_agent(history=None, callback_manager=None) -> OpenAIAgent:
     agent = OpenAIAgent.from_tools(
         system_prompt="You are a financial assistant. You are to take identified tasks from your clients, and execute "
-                      "them using the tools provided, ensuring you mark the task with the returned value of the tools "
-                      "after completion",
+                      "them using the tools provided, you must ensure after you have finished executing a task that you "
+                      "update said task with exact response (resolution) of previous tools used.",
         llm=service_context.llm,
         tools=[transfer_currency_tool, update_task_with_resolution],
         callback_manager=callback_manager,

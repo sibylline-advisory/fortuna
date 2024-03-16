@@ -18,18 +18,13 @@ export function Index() {
 	const safeAccount = useRef({})
 	const smartAccountClient = useRef({})
 
-	const authJwt = useRef("")
-
 	const [loading, setLoading] = useState(false);
 
-	useEffect(() => {
-		authJwt.current = getAuthToken()
-	}, [data]);
-
+	console.log("Index -> data", data)
 
 	const submit = async () => {
 		console.log(message);
-		await sendTask(message, dynamicJwtToken.current);
+		await sendTask(message, getAuthToken());
 	}
 
 	const formHandler = (e) => {

@@ -1,10 +1,10 @@
 import {doClientSetup, safeSendTxn} from "@/lib/pimlico";
 import {parseEther, zeroAddress} from "viem";
 
-export default function TestButtons(data, signer, safeAccount, smartAccountClient) {
+export default function TestButtons({data, signer, safeAccount, smartAccountClient}) {
 
 	const demoSendEth = {
-		to: "0xaf785f9296741a3BAF34eA2A6b576ACAFA30B6Ec", // 3266miles.eth
+		to: "0x8f56A5cF7c56a01118d2C5992146473D32b5f612", // harper safe
 		value: parseEther("0.001")
 	}
 
@@ -35,6 +35,7 @@ export default function TestButtons(data, signer, safeAccount, smartAccountClien
 
 	const sendSafeEthHandler = (e) => {
 		e.preventDefault()
+		console.log("data", data)
 		safeSendTxn(demoSendEth, data, signer, safeAccount, smartAccountClient).then(() => {
 			console.log("SAFE ETH sent")
 		}).catch((e) => {

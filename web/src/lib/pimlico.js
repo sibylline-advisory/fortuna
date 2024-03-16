@@ -51,6 +51,7 @@ export const safeSendTxn = async (txn, data, signer, safeAccount, smartAccountCl
 	txn.maxFeePerGas = gasPrices.fast.maxFeePerGas
 	txn.maxPriorityFeePerGas = gasPrices.fast.maxPriorityFeePerGas
 	try {
+		console.log(data, signer, safeAccount, smartAccountClient)
 		await doClientSetup(data, signer, safeAccount, smartAccountClient)
 		console.log(smartAccountClient)
 		const txHash = await smartAccountClient.current.sendTransaction(txn)

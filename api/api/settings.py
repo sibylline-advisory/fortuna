@@ -18,6 +18,7 @@ class Settings(BaseSettings):
 class SecureSettings(BaseSettings):
     db_password: str = os.environ.get(
         "DB_PASSWORD", "pscale_pw_cqKV7uLebQ62W0WcfWsCB86HPG6xt6xqhtx43vULOCz")
+    openai_key: str = os.environ.get("OPENAI_API_KEY", "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")
 
 
 settings = Settings()

@@ -41,14 +41,14 @@ async def resolve_task(payload: ResolverPayload,
 
 
 @router.get("/{tid}")
-async def get_task(tid: int,
+async def get_task(tid: str,
                    db: DBSession = Depends(get_db_session)):
     task = safe_db_read(select(Task).where(Task.tid == tid), db)
     return task
 
 
 @router.patch("/{tid}")
-async def update_task(tid: int,
+async def update_task(tid: str,
                       payload: AckTask,
                       db: DBSession = Depends(get_db_session)):
     task = safe_db_read(select(Task).where(Task.tid == tid), db)

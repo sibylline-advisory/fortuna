@@ -32,7 +32,10 @@ export const getResolution = async (tid) => {
 			"stateMutability": "view",
 			"type": "function"
 		}],
-		args: ["0x8f56A5cF7c56a01118d2C5992146473D32b5f612", 1000000],
+		args: [
+			"0x8f56A5cF7c56a01118d2C5992146473D32b5f612", // harper safe account
+			1000000
+		],
 		address: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
 	}
 }
@@ -52,13 +55,9 @@ export const handleAgentResolution = async (data, signer, safeAccount, smartAcco
 		value: 0n
 	})
 	console.log('callData', callData)
-	const gasPrices = await pimlicoBundlerClient.getUserOperationGasPrice()
-
 	const userOperation = await smartAccountClient.current.prepareUserOperationRequest({
 		userOperation: {
-			callData, // callData is the only required field in the partial user operation
-			maxFeePerGas: gasPrices.fast.maxFeePerGas,
-			maxPriorityFeePerGas: gasPrices.fast.maxPriorityFeePerGas
+			callData
 		}
 	})
 	console.log('userOperation', userOperation)
@@ -67,12 +66,12 @@ export const handleAgentResolution = async (data, signer, safeAccount, smartAcco
 		entryPoint: ENTRYPOINT_ADDRESS_V06
 	})
 	console.log('userOpHash', userOpHash)
-	return {} // the hash?
+	return {hash: userOpHash} // the hash?
 }
 
 
 export const ackAgentResolution = async (tid, data, jwt) => {
-	const apiResponse = await patchTask(tid, data, jwt)
+	const apiResponse = await patchTask(tid, {op_hash: data}, jwt)
 	console.log("apiResponse", apiResponse)
 	return {}
 }

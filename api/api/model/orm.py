@@ -41,3 +41,4 @@ class Task(SQLModel, table=True):
     )
     status: Optional[str]
     call_data: Optional[str] = Field(sa_column=Column(LONGTEXT))
+    op_hash: Optional[str]

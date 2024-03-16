@@ -22,7 +22,7 @@ export function Index() {
 
 	const [loading, setLoading] = useState(false);
 
-	const [pollData, setPollData] = useState(null);
+	const [resolutionDetails, setResolutionDetails] = useState(null);
 	const [hasResolution, setHasResolution] = useState(false);
 
 	useEffect(() => {
@@ -30,28 +30,38 @@ export function Index() {
 			const response = await getResolution(hasResolution.tid);
 			if (response) {
 				console.log("Got resolution response", response)
-				setPollData(response);
-				await doClientSetup(data, signer, safeAccount, smartAccountClient);
-				const r = await handleAgentResolution(response, signer, safeAccount, smartAccountClient);
-				const synAck = await ackAgentResolution(response);
-				if (synAck) {
-					console.log("acknowledged")
-					setPollData(null);
-					setHasResolution(false);
-				}
+				setResolutionDetails(response);
 			}
 		};
 		let intervalId;
-		if (hasResolution) {
+		if (hasResolution && !resolutionDetails) {
+			console.log(`Resolution: ${hasResolution} - polling`);
 			intervalId = setInterval(pollApi, 1000);
 		}
 
 		return () => {
 			clearInterval(intervalId); // Clean up the interval on component unmount
 		};
-	}, [hasResolution]);
+	}, [hasResolution, resolutionDetails]);
 
-	console.log("Index -> data", data)
+	useEffect(() => {
+		if (resolutionDetails) {
+			console.log("useEffect -> pollData", resolutionDetails)
+			doClientSetup(data, signer, safeAccount, smartAccountClient).then(() => {
+				console.log("client setup done");
+				handleAgentResolution(resolutionDetails, signer, safeAccount, smartAccountClient).then((r) => {
+					console.log("Handled resolution")
+					ackAgentResolution(hasResolution.tid, r.hash, getAuthToken()).then(() => {
+						console.log("acknowledged")
+						setResolutionDetails(null);
+						setHasResolution(false);
+					});
+				});
+			});
+		}
+	}, [data, resolutionDetails])
+
+	// console.log("Index -> data", data)
 
 	const submit = async () => {
 		console.log(message);

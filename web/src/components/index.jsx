@@ -4,15 +4,15 @@
  */
 import Image from "next/image";
 import {useEffect, useRef, useState} from "react";
-import {Input} from "@/components/ui/input";
 import {sendTask} from "@/lib/task";
 import {useWalletClient} from "wagmi";
-import TestButtons from "@/components/TestButtons";
 import WalletModalWrapper from "@/components/WalletModalWrapper";
 import {getAuthToken} from "@dynamic-labs/sdk-react-core";
 import {ackAgentResolution, getResolution, handleAgentResolution} from "@/lib/resolver";
 import {doClientSetup} from "@/lib/pimlico";
 import {getCookie} from "cookies-next";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faComments} from "@fortawesome/free-solid-svg-icons";
 
 export function Index() {
 	const [message, setMessage] = useState("");
@@ -90,11 +90,11 @@ export function Index() {
 			<div className="absolute top-0 left-0 right-0 flex items-center justify-between p-4">
 				<div className="flex items-center">
 					<Image
-						width={10}
-						height={10}
+						width={128}
+						height={128}
 						alt="Logo"
-						className="w-10 h-10"
-						src="/placeholder.svg"
+						className="w-10 h-10 rounded-xl"
+						src="/logo.png"
 					/>
 					<div className="ml-2 text-2xl font-semibold text-gray-800 dark:text-gray-200">
 						Fortuna
@@ -112,32 +112,17 @@ export function Index() {
 					Your on-chain money manager
 				</div>
 				<div className="flex items-center w-full max-w-md p-2 bg-white dark:bg-gray-800 rounded-full shadow-md">
-					<Image
-						width={32}
-						height={32}
-						alt="Search Icon"
-						className="w-6 h-6 ml-2 text-gray-500"
-						src="/placeholder.svg"
-					/>
+					<FontAwesomeIcon icon={faComments} className="pl-4 w-6 h-6 text-gray-400"/>
 					<form onSubmit={formHandler}>
-						{!loading ? <Input
-								className="w-full p-2 ml-4 text-lg text-gray-700 dark:text-gray-300 bg-transparent outline-none"
-								placeholder="Lets get started"
-								type="text"
-								value={message}
-								onChange={(e) => setMessage(e.target.value)}
-							/> :
-							<Input
-								disbled
-								className="w-full p-2 ml-4 text-lg text-gray-700 dark:text-gray-300 bg-transparent outline-none"
-								type="text"
-								value={message}
-							/>
-						}
+						<input
+							className="w-full p-2 ml-4 text-lg text-gray-700 dark:text-gray-300 bg-transparent outline-none"
+							placeholder="Lets get started"
+							type="text"
+							value={message}
+							onChange={(e) => setMessage(e.target.value)}
+						/>
 					</form>
 				</div>
-				<TestButtons data={data} signer={signer} safeAccount={safeAccount}
-				             smartAccountClient={smartAccountClient}/>
 			</div>
 		</div>
 	);

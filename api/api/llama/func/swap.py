@@ -6,23 +6,24 @@ log = logging.getLogger(__name__)
 
 # TODO get these from an index or service provider.
 asset_categories = {
+    # TODO these are on mainnet
     "recommended": {
         "decimals": 18,
-        "address": "0xAd3fe5Aeabf79B8291F877B367139466c221216e",
-        "name": "Bitcoin",
-        "symbol": "BTC",
+        "address": "0x236aa50979D5f3De3Bd1Eeb40E81137F22ab794b",
+        "name": "Base tBTC v2",
+        "symbol": "tBTC",
     },
     "high_risk": {
         "decimals": 18,
-        "address": "0xAd3fe5Aeabf79B8291F877B367139466c221216e",
-        "name": "Joe Boden",
-        "symbol": "JOE",
+        "address": "0x3055913c90Fcc1A6CE9a358911721eEb942013A1",
+        "name": "PancakeSwap",
+        "symbol": "CAKE",
     },
     "low_risk": {
         "decimals": 18,
-        "address": "0xAd3fe5Aeabf79B8291F877B367139466c221216e",
-        "name": "Ethereum",
-        "symbol": "ETH",
+        "address": "0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452",
+        "name": "Wrapped liquid staked Ether 2.0",
+        "symbol": "wstETH",
     }
 }
 

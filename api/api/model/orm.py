@@ -39,6 +39,6 @@ class Task(SQLModel, table=True):
             viewonly=True
         )
     )
-    status: Optional[str]
+    status: Optional[StatusType] = Field(default=StatusType.pending)
     call_data: Optional[str] = Field(sa_column=Column(LONGTEXT))
     op_hash: Optional[str]

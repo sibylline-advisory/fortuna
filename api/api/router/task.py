@@ -1,6 +1,7 @@
 import logging
+from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Header
 from sqlmodel import select
 
 from ..dependency import get_user
@@ -18,10 +19,12 @@ router = APIRouter(
 
 @router.post('/')
 async def create_task(payload: CreateTaskPayload,
+                      x_account_address: Optional[str] = Header(None),
                       user: User = Depends(get_user),
                       db: DBSession = Depends(get_db_session)):
     task = Task(
-        **payload.dict(),
+        text=f"Account ID: {x_account_address}\n{payload.text}",
+        type=payload.type,
         user_id=user.uid
     )
     safe_db_write([task], db)

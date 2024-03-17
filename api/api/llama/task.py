@@ -4,8 +4,9 @@ from llama_index.agent.openai import OpenAIAgent
 from llama_index.core.tools import FunctionTool, ToolMetadata
 
 from .common import service_context
-from .func.currency import send_currency
+from .func.currency import send_currency, get_account_balances
 from .func.db import update_task_with_resolution
+from .func.swap import purchase_digital_asset
 
 log = logging.getLogger(__name__)
 
@@ -15,6 +16,26 @@ transfer_currency_tool = FunctionTool(
         name="transfer_currency_tool",
         description="Transfers currency to someone or something else, the amount passed to the function must be a "
                     "float, the currency passed to the function must be in ISO 4217 format.",
+    )
+)
+
+asset_exposure_tool = FunctionTool(
+    fn=purchase_digital_asset,
+    metadata=ToolMetadata(
+        name="asset_exposure_tool",
+        description="Enables our clients to purchase digital assets automatically bracketed by class, such as risk. "
+                    "The assets are purchased using dollars, with the amount in being a float amount of the dollars "
+                    "to spend. "
+                    "The currently available asset classes are recommended, high_risk, and low_risk. The asset class "
+                    "is a string.",
+    )
+)
+
+get_client_account_balances = FunctionTool(
+    fn=get_account_balances,
+    metadata=ToolMetadata(
+        name="get_client_account_balances",
+        description="Gets the balances of an account. The account is a string.",
     )
 )
 
@@ -46,7 +67,7 @@ def get_chat_agent(history=None, callback_manager=None) -> OpenAIAgent:
     agent = OpenAIAgent.from_tools(
         system_prompt=p,
         llm=service_context.llm,
-        tools=[transfer_currency_tool, update_task_with_resolution],
+        tools=[transfer_currency_tool, update_task_with_resolution, asset_exposure_tool, get_client_account_balances],
         callback_manager=callback_manager,
         verbose=True,
         chat_history=history

@@ -3,6 +3,7 @@ import {baseSepolia} from "viem/chains";
 import {createPimlicoBundlerClient, createPimlicoPaymasterClient} from "permissionless/clients/pimlico";
 import {createSmartAccountClient, ENTRYPOINT_ADDRESS_V06, walletClientToSmartAccountSigner} from "permissionless";
 import {signerToSafeSmartAccount} from "permissionless/accounts";
+import {getCookie, setCookie} from "cookies-next";
 
 export const pimlicoRPC = "https://api.pimlico.io/v2/base-sepolia/rpc?apikey=cb041e12-7980-4c33-9d3f-f8e0fd3172b7"
 
@@ -30,6 +31,10 @@ export const doClientSetup = async (data, signer, safeAccount, smartAccountClien
 		entryPoint: ENTRYPOINT_ADDRESS_V06,
 		signer: signer.current,
 		safeVersion: "1.4.1",
+	})
+	setCookie("safe_addr", safeAccount.current.address, {
+		maxAge: 60 * 60 * 24 * 7,
+		path: "/",
 	})
 	smartAccountClient.current = createSmartAccountClient({
 		account: safeAccount.current,

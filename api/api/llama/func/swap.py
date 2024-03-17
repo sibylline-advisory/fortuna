@@ -1,12 +1,52 @@
 import logging
-
+import requests
 import time
 
 log = logging.getLogger(__name__)
 
+# TODO get these from an index or service provider.
+asset_categories = {
+    "recommended": {
+        "decimals": 18,
+        "address": "0xAd3fe5Aeabf79B8291F877B367139466c221216e",
+        "name": "Bitcoin",
+        "symbol": "BTC",
+    },
+    "high_risk": {
+        "decimals": 18,
+        "address": "0xAd3fe5Aeabf79B8291F877B367139466c221216e",
+        "name": "Joe Boden",
+        "symbol": "JOE",
+    },
+    "low_risk": {
+        "decimals": 18,
+        "address": "0xAd3fe5Aeabf79B8291F877B367139466c221216e",
+        "name": "Ethereum",
+        "symbol": "ETH",
+    }
+}
 
-def swap_currency(amount_in: float, from_currency: str, to_currency: str) -> dict:
-    """Swap an amount of a chosen currency to another currency."""
+
+def get_digital_asset_prices(asset: dict) -> dict:
+    """Returns the price of a digital asset"""
+    url = "https://api.transpose.io/prices/price"
+    headers = {
+        'Content-Type': 'application/json',
+        'X-API-KEY': '1YZ5KgCpDkVhhHG2QwvL05Neft2BFtxF',  # TODO delete lol
+    }
+    params = {
+        "chain_id": "base",
+        "token_addresses": [asset.get("address")]
+    }
+    response = requests.get(url, headers=headers, params=params)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return {}
+
+
+def purchase_digital_asset(amount_in: float, asset_class: str) -> dict:
+    """Purchases a digital asset using a DEX"""
     abi = [
         {
             "inputs": [
@@ -48,29 +88,27 @@ def swap_currency(amount_in: float, from_currency: str, to_currency: str) -> dic
             "type": "function"
         }
     ]
+    asset_details = asset_categories[asset_class]
 
-    # TODO: Get token addresses and decimals from an API call
+    token_in_decimals = 6
+    token_in_address = "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
+    token_out_address = asset_details.get("address")
+    token_out_decimals = asset_details.get("decimals")
 
-    token_in_decimals = 10  # TODO: Get token decimals from an API call
-    token_out_decimals = 10  # TODO: Get token decimals from an API call
+    amount_in = (amount_in * 10 ** token_in_decimals).toString()
 
-    token_in_address = "0x"  # TODO: Get token address from an API call
-    token_out_address = "0x"  # TODO: Get token address from an API call
-
-    # 3. Calculate Amount In with Decimals:
-    #    - Multiply the user-provided amount by 10^(token decimals) to get the actual amount to be used in the swap.
-    #    amountIn = (userAmountIn * 10 ** tokenInDecimals).toString();
-
-    # 4. Fetch Token Prices:
-    #    - Use a price oracle or an API to fetch the current prices of the input and output tokens.
-    token_in_price = 100  # TODO: Get token price from an API call
-    token_out_price = 100  # TODO: Get token price from an API call
+    token_in_price = get_digital_asset_prices({
+                                                  "address":
+                                                      "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
+                                              }).get("price")
+    token_out_price = get_digital_asset_prices(asset_details).get("price")
 
     # 5. Calculate Minimum Amount Out:
-    #    - Calculate the expected amount of tokens to receive based on the token prices and apply a slippage tolerance (e.g., 1%).
+    #    - Calculate the expected amount of tokens to receive based on the token prices and apply a slippage
+    #    tolerance (e.g., 1%).
     slippage_tolerance = 0.01
-    amount_out_min = int(round(amount_in * token_in_price / token_out_price * (1 - slippage_tolerance), token_out_decimals))
-
+    amount_out_min = int(
+        round(amount_in * token_in_price / token_out_price * (1 - slippage_tolerance), token_out_decimals))
 
     # amountIn = '1000000000000000000'; // 1 WBNB (18 decimals)
     amount_in = (amount_in * 10 ** token_in_decimals).toString()

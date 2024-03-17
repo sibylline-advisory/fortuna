@@ -6,7 +6,7 @@ from llama_index.core.tools import FunctionTool, ToolMetadata
 from .common import service_context
 from .func.currency import send_currency
 from .func.db import update_task_with_resolution
-from .func.swap import swap_currency
+from .func.swap import purchase_digital_asset
 
 log = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ transfer_currency_tool = FunctionTool(
 )
 
 swap_currency_tool = FunctionTool(
-    fn=swap_currency,
+    fn=purchase_digital_asset,
     metadata=ToolMetadata(
         name="swap_currency_tool",
         description="Swaps an amount of a chosen currency to another currency, the amount passed to the function must "

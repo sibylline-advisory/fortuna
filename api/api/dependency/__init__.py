@@ -1,5 +1,6 @@
 import logging
 
+import jwt
 from fastapi import Header, status, HTTPException
 from httpx import AsyncClient
 from sqlmodel import select
@@ -11,6 +12,20 @@ log = logging.getLogger(__name__)
 
 environment_id = "b1c47bc4-7e96-451e-a937-f85fa7226bfb"
 dynamic_api_key = "dyn_puLvWKrjUbDF1ACufYX2gYyJ7KPkFCJZ9W2Ew8E1ym1zBzXfNT3aur5d"
+
+
+def verify_jwt(token, secret_key):
+    try:
+        # Decode the JWT using the secret key
+        decoded_token = jwt.decode(token, secret_key, algorithms=["HS256"])
+        return decoded_token
+    except jwt.ExpiredSignatureError:
+        print("Token has expired.")
+    except jwt.InvalidTokenError:
+        print("Invalid token.")
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+    return None
 
 
 async def get_user(x_fortuna_jwt: str = Header(None)) -> User:
@@ -25,7 +40,9 @@ async def get_user(x_fortuna_jwt: str = Header(None)) -> User:
             if r.status_code == status.HTTP_200_OK:
                 env_keys = r.json()
                 log.info(env_keys)
-                # TODO implement the JWT verification
+                # TODO fix the jwt verification
+                # decoded_jwt = verify_jwt(x_fortuna_jwt, env_keys["key"]["publicKey"])
+                # log.info(decoded_jwt)
                 try:
                     db_user = safe_db_read(select(User).where(User.uid == "TODO"), db_session)
                     return db_user

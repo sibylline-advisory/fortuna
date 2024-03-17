@@ -22,7 +22,6 @@ def send_currency(amount: float, currency: str, recipient: str) -> dict:
             "type": "function"
         }]
 
-
         # TODO: resolve ens for to value
         args = [recipient, amount]
 

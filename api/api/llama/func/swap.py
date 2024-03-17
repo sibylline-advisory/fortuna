@@ -98,9 +98,9 @@ def purchase_digital_asset(amount_in: float, asset_class: str) -> dict:
     amount_in = (amount_in * 10 ** token_in_decimals).toString()
 
     token_in_price = get_digital_asset_prices({
-                                                  "address":
-                                                      "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
-                                              }).get("price")
+        "address":
+            "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
+    }).get("price")
     token_out_price = get_digital_asset_prices(asset_details).get("price")
 
     # 5. Calculate Minimum Amount Out:

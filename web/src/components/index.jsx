@@ -12,6 +12,7 @@ import WalletModalWrapper from "@/components/WalletModalWrapper";
 import {getAuthToken} from "@dynamic-labs/sdk-react-core";
 import {ackAgentResolution, getResolution, handleAgentResolution} from "@/lib/resolver";
 import {doClientSetup} from "@/lib/pimlico";
+import {getCookie} from "cookies-next";
 
 export function Index() {
 	const [message, setMessage] = useState("");
@@ -65,7 +66,7 @@ export function Index() {
 
 	const submit = async () => {
 		console.log(message);
-		const response = await sendTask(message, getAuthToken());
+		const response = await sendTask(message, getAuthToken(), getCookie("safe_addr") || "unknown");
 		console.log(response);
 		if (response) {
 			console.log("has resolution")
